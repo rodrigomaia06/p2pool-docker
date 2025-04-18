@@ -29,13 +29,6 @@ jobs:
         commit=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/SChernykh/p2pool/releases/latest | jq -r '.tag_name' | cut -c 2-)
         echo "LATEST_TAG=$commit" >> $GITHUB_ENV
 
-    - name: Build & Push P2Pool Node Image
-      run: |
-        docker build . --file Dockerfile --tag ghcr.io/${{ github.repository }}:${{ env.LATEST_TAG }}
-        docker tag ghcr.io/${{ github.repository }}:${{ env.LATEST_TAG }} ghcr.io/${{ github.repository }}:latest
-        docker push ghcr.io/${{ github.repository }}:${{ env.LATEST_TAG }}
-        docker push ghcr.io/${{ github.repository }}:latest
-
     - name: Build & Push Statistics Image
       run: |
         docker build ./statistics --file ./statistics/Dockerfile --tag ghcr.io/${{ github.repository }}-statistics:${{ env.LATEST_TAG }}
