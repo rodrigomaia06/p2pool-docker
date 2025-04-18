@@ -2,6 +2,7 @@
 
 
 services:
+  # P2Pool Service
   p2pool:
     image: ghcr.io/rodrigomaia06/p2pool-docker:latest  # Docker image for P2Pool (built from the latest source)
     container_name: p2pool                            # Container name for easier reference
@@ -11,11 +12,9 @@ services:
       - "18333:18333"  # Exposes Stratum port for mining software to connect to
       - "37888:37888"  # P2P node port (Mini Network) — used for peer discovery and sync
       - "37889:37889"  # P2P node port (Main Network) — used for peer discovery and sync
-
     volumes:
-      - ./p2pool/:/home/p2pool/.p2pool:rw             # Local directory to persist P2Pool data
+      - ./p2pool:/home/p2pool/.p2pool:rw             # Mount local p2pool directory to container's p2pool data directory (read-write)
       - /dev/hugepages:/dev/hugepages:rw              # Required for optimized memory performance (hugepages)
-
     command: >
       --host monerod                                  # Hostname or IP address of your Monero node
       --local-api                                     # Enables the local web API interface
@@ -26,3 +25,21 @@ services:
       --p2p 0.0.0.0:37888                             # P2Pool peer-to-peer listening address and port
       --stratum 0.0.0.0:18333                         # Stratum mining interface binding address and port
       --mini                                          # Enables P2Pool Mini Network mode
+
+  # Statistics Service
+  statistics:
+    image: ghcr.io/rodrigomaia06/p2pool-statistics:latest  # Pre-built image for the statistics service
+    container_name: p2pool-statistics                     # Container name for the statistics service
+    networks:
+      - p2pool  # Ensure statistics container is in the same network as p2pool
+    ports:
+      - "3380:80"  # Expose port 80 of statistics container on port 3380 of the host
+    volumes:
+      - ./p2pool:/data:ro  # Mount P2Pool data directory as read-only for statistics container
+    depends_on:
+      - p2pool  # Ensure statistics service starts after p2pool container is up
+    restart: unless-stopped  # Restart container unless manually stopped
+
+networks:
+  p2pool:
+    driver: bridge  # Define the network for p2pool and statistics containers to communicate
