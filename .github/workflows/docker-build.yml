@@ -1,5 +1,4 @@
-name: Docker Build
-
+name: Docker Build P2Pool
 on:
   push:
     branches: [ "main" ]
@@ -36,7 +35,7 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build . --file Dockerfile --tag ghcr.io/${{ github.repository }}:${{ env.LATEST_TAG }}
+        docker build . --file Dockerfile_P2Pool --tag ghcr.io/${{ github.repository }}:${{ env.LATEST_TAG }}
         docker tag ghcr.io/${{ github.repository }}:${{ env.LATEST_TAG }} ghcr.io/${{ github.repository }}:latest
         
     - name: Push the Docker image
