@@ -1,0 +1,28 @@
+# Choose the main or the mini network. It's one or the other.
+
+
+services:
+  p2pool:
+    image: ghcr.io/rodrigomaia06/p2pool-docker:latest  # Docker image for P2Pool (built from the latest source)
+    container_name: p2pool                            # Container name for easier reference
+    privileged: true                                  # Allows access to kernel-level features (required for hugepages)
+    restart: unless-stopped                           # Automatically restart container unless manually stopped
+    ports:
+      - "18333:18333"  # Exposes Stratum port for mining software to connect to
+      - "37888:37888"  # P2P node port (Mini Network) — used for peer discovery and sync
+      - "37889:37889"  # P2P node port (Main Network) — used for peer discovery and sync
+
+    volumes:
+      - ./p2pool/:/home/p2pool/.p2pool:rw             # Local directory to persist P2Pool data
+      - /dev/hugepages:/dev/hugepages:rw              # Required for optimized memory performance (hugepages)
+
+    command: >
+      --host monerod                                  # Hostname or IP address of your Monero node
+      --local-api                                     # Enables the local web API interface
+      --data-api /home/p2pool/.p2pool                 # Path where P2Pool stores its local data
+      --rpc-port 18081                                # Monero daemon RPC port (default is 18081)
+      --no-igd                                        # Disables UPnP (manual port forwarding recommended)
+      --wallet ***                                    # Your Monero wallet address (replace `***` with your address)
+      --p2p 0.0.0.0:37888                             # P2Pool peer-to-peer listening address and port
+      --stratum 0.0.0.0:18333                         # Stratum mining interface binding address and port
+      --mini                                          # Enables P2Pool Mini Network mode
