@@ -21,7 +21,7 @@ jobs:
     - name: Get Latest P2Pool Commit Hash
       id: get_commit
       run: |
-        commit=$(curl -s https://api.github.com/repos/SChernykh/p2pool/commits/main | jq -r '.sha' | cut -c1-7)
+        commit=$(curl -s -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/SChernykh/p2pool/releases/latest | jq -r '.tag_name' | cut -c 2-)
         echo "LATEST_TAG=$commit" >> $GITHUB_ENV
 
     - name: Set up Docker Buildx
